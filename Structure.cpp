@@ -1,4 +1,25 @@
+//Structure.cpp
 #include "Structure.h"
+#include <sstream>
+
+// Вспомогательная функция для перевода символов CP1251 в нижний регистр
+char tolowerCP1251(unsigned char c) {
+    if (c >= 'A' && c <= 'Z') return c + 32;
+    if (c >= 0xC0 && c <= 0xDF) return c + 32;
+    if (c == 0xA8) return 0xB8; // 'Ё' -> 'ё'
+    return c;
+}
+
+// Вспомогательная функция для регистронезависимого сравнения строк
+bool iequals(const string& a, const string& b) {
+    if (a.size() != b.size()) return false;
+    for (size_t i = 0; i < a.size(); ++i) {
+        if (tolowerCP1251(static_cast<unsigned char>(a[i])) != tolowerCP1251(static_cast<unsigned char>(b[i]))) {
+            return false;
+        }
+    }
+    return true;
+}
 
 // Вход: нет.
 // Что делает: инициализирует пустую структуру.
@@ -15,9 +36,14 @@ StudyStructure::~StudyStructure() {
 }
 
 // Вход: название предмета.
-// Что делает: создает узел предмета и добавляет его в конец списка предметов.
+// Что делает: создает узел предмета и добавляет его в конец списка, если такого предмета еще нет.
 // Выход: структура обновлена.
 void StudyStructure::addSubject(string subject) {
+    // Если предмет уже существует, новый узел не создаем
+    if (hasSubject(subject)) {
+        return;
+    }
+
     SubjectNode* newNode = new SubjectNode;
     newNode->subjectName = subject;
     newNode->eventHead = nullptr;
@@ -36,17 +62,17 @@ void StudyStructure::addSubject(string subject) {
 }
 
 // Вход: название предмета, тип события.
-// Что делает: ищет предмет, затем добавляет событие в конец списка событий этого предмета.
+// Что делает: ищет предмет, затем добавляет уникальное событие в конец списка событий этого предмета.
 // Выход: структура обновлена.
 void StudyStructure::addEvent(string subject, string event) {
-    SubjectNode* currentSubject = subjectHead;
-    while (currentSubject != nullptr) {
-        if (currentSubject->subjectName == subject) break;
-        currentSubject = currentSubject->next;
-    }
-
+    SubjectNode* currentSubject = findSubject(subject);
     if (currentSubject == nullptr) {
         cout << "Предмет не найден\n";
+        return;
+    }
+
+    // Проверяем, существует ли уже такое событие у данного предмета
+    if (hasEvent(subject, event)) {
         return;
     }
 
@@ -64,6 +90,51 @@ void StudyStructure::addEvent(string subject, string event) {
         currentEvent = currentEvent->next;
     }
     currentEvent->next = newEvent;
+}
+
+// Вход: название предмета.
+// Что делает: проверяет существование предмета в структуре (без учета регистра).
+// Выход: true, если найден, иначе false.
+bool StudyStructure::hasSubject(string subject) {
+    return findSubject(subject) != nullptr;
+}
+
+// Вход: название предмета, название события.
+// Что делает: проверяет, привязано ли уже такое событие к указанному предмету.
+// Выход: true, если событие найдено, иначе false.
+bool StudyStructure::hasEvent(string subject, string event) {
+    return findEvent(subject, event) != nullptr;
+}
+
+// Вход: название предмета.
+// Что делает: выполняет регистронезависимый поиск предмета.
+// Выход: указатель на узел предмета, либо nullptr в случае отсутствия совпадений.
+SubjectNode* StudyStructure::findSubject(string subject) {
+    SubjectNode* current = subjectHead;
+    while (current != nullptr) {
+        if (iequals(current->subjectName, subject)) {
+            return current;
+        }
+        current = current->next;
+    }
+    return nullptr;
+}
+
+// Вход: название предмета, название события.
+// Что делает: выполняет регистронезависимый поиск события у указанного предмета.
+// Выход: указатель на узел события, либо nullptr в случае отсутствия совпадений.
+EventNode* StudyStructure::findEvent(string subject, string event) {
+    SubjectNode* subj = findSubject(subject);
+    if (subj == nullptr) return nullptr;
+
+    EventNode* current = subj->eventHead;
+    while (current != nullptr) {
+        if (iequals(current->eventName, event)) {
+            return current;
+        }
+        current = current->next;
+    }
+    return nullptr;
 }
 
 // Вход: нет.
@@ -93,15 +164,10 @@ void StudyStructure::display() {
 }
 
 // Вход: название предмета, тип события.
-// Что делает: находит предмет, затем ищет событие в списке и удаляет его, перевязывая указатели.
+// Что делает: находит предмет, затем ищет событие в списке (без учета регистра) и удаляет его, перевязывая указатели.
 // Выход: структура обновлена.
 void StudyStructure::deleteEvent(string subject, string event) {
-    SubjectNode* currentSubject = subjectHead;
-    while (currentSubject != nullptr) {
-        if (currentSubject->subjectName == subject) break;
-        currentSubject = currentSubject->next;
-    }
-
+    SubjectNode* currentSubject = findSubject(subject);
     if (currentSubject == nullptr) {
         cout << "Предмет не найден\n";
         return;
@@ -111,7 +177,7 @@ void StudyStructure::deleteEvent(string subject, string event) {
     EventNode* previous = nullptr;
 
     while (current != nullptr) {
-        if (current->eventName == event) break;
+        if (iequals(current->eventName, event)) break;
         previous = current;
         current = current->next;
     }
@@ -125,29 +191,32 @@ void StudyStructure::deleteEvent(string subject, string event) {
     else previous->next = current->next;
 
     delete current;
-    cout << "Событие удалено\n";
+    cout << "Событие \"" << event << "\" удалено\n";
 }
 
 // Вход: название предмета.
-// Что делает: удаляет предмет, предварительно освобождая память всех его событий.
+// Что делает: удаляет предмет (без учета регистра), предварительно освобождая память всех его событий.
 // Выход: структура обновлена.
 void StudyStructure::deleteSubject(string subject) {
-    SubjectNode* current = subjectHead;
-    SubjectNode* previous = nullptr;
-
-    while (current != nullptr) {
-        if (current->subjectName == subject) break;
-        previous = current;
-        current = current->next;
-    }
-
+    SubjectNode* current = findSubject(subject);
     if (current == nullptr) {
         cout << "Предмет не найден\n";
         return;
     }
 
-    if (previous == nullptr) subjectHead = current->next;
-    else previous->next = current->next;
+    // Если удаляемый узел является головой списка
+    if (subjectHead == current) {
+        subjectHead = current->next;
+    }
+    else {
+        SubjectNode* temp = subjectHead;
+        while (temp != nullptr && temp->next != current) {
+            temp = temp->next;
+        }
+        if (temp != nullptr) {
+            temp->next = current->next;
+        }
+    }
 
     // Очистка событий предмета
     EventNode* event = current->eventHead;
@@ -157,8 +226,9 @@ void StudyStructure::deleteSubject(string subject) {
         delete temp;
     }
 
+    string deletedName = current->subjectName;
     delete current;
-    cout << "Предмет удален\n";
+    cout << "Предмет \"" << deletedName << "\" удален\n";
 }
 
 // Вход: имя файла.
@@ -187,7 +257,8 @@ void StudyStructure::saveToFile(string filename) {
 }
 
 // Вход: имя файла.
-// Что делает: читает файл, парсит пробелы и восстанавливает структуру в памяти.
+// Что делает: читает файл построчно, разбирает слова и восстанавливает структуру в памяти. 
+//             Игнорирует пустые строки и не создает пустые элементы.
 // Выход: структура наполнена данными.
 void StudyStructure::loadFromFile(string filename) {
     ifstream file(filename);
@@ -196,28 +267,30 @@ void StudyStructure::loadFromFile(string filename) {
         return;
     }
 
-    string subject;
-    while (file >> subject) {
-        addSubject(subject);
-        string line;
-        getline(file, line);
-        string word = "";
+    string line;
+    bool loadedAny = false;
+    while (getline(file, line)) {
+        if (line.empty()) continue;
 
-        for (size_t i = 0; i < line.size(); i++) {
-            if (line[i] == ' ') {
-                if (!word.empty()) {
-                    addEvent(subject, word);
-                    word = "";
-                }
-            }
-            else {
-                word += line[i];
-            }
+        stringstream ss(line);
+        string subject;
+        if (!(ss >> subject)) continue;
+
+        addSubject(subject);
+        loadedAny = true;
+
+        string event;
+        while (ss >> event) {
+            addEvent(subject, event);
         }
-        if (!word.empty()) addEvent(subject, word);
     }
     file.close();
-    cout << "Загрузка завершена\n";
+    if (loadedAny) {
+        cout << "Загрузка завершена\n";
+    }
+    else {
+        cout << "Файл пуст или не содержит корректных данных\n";
+    }
 }
 
 // Вход: нет.

@@ -1,3 +1,4 @@
+//Structure.h
 #pragma once
 #include <iostream>
 #include <fstream>
@@ -11,7 +12,7 @@ struct EventNode {
     EventNode* next;
 };
 
-// Узел для хранения предмета (ствол)
+// Узел для хранения предмета
 struct SubjectNode {
     string subjectName;
     EventNode* eventHead;
@@ -27,10 +28,10 @@ public:
     StudyStructure();
     ~StudyStructure();
 
-    // Добавляет новый предмет в конец списка предметов
+    // Добавляет новый предмет в конец списка предметов (с проверкой на уникальность)
     void addSubject(string subject);
 
-    // Добавляет событие (ветку) к существующему предмету
+    // Добавляет событие к существующему предмету (с проверкой на уникальность)
     void addEvent(string subject, string event);
 
     // Выводит всю структуру на экран
@@ -41,6 +42,21 @@ public:
 
     // Удаляет предмет целиком вместе со всеми его событиями
     void deleteSubject(string subject);
+
+    // Проверяет существование предмета в списке
+    bool hasSubject(string subject);
+
+    // Проверяет существование события у конкретного предмета
+    bool hasEvent(string subject, string event);
+
+    // Ищет предмет (регистронезависимо) и возвращает указатель на него, либо nullptr
+    SubjectNode* findSubject(string subject);
+
+    // Ищет событие у конкретного предмета (регистронезависимо) и возвращает указатель на него, либо nullptr
+    EventNode* findEvent(string subject, string event);
+
+    // Возвращает указатель на начало списка предметов
+    SubjectNode* getSubjectHead() const { return subjectHead; }
 
     // Записывает структуру в файл
     void saveToFile(string filename);
