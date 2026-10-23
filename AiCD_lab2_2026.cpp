@@ -1,57 +1,89 @@
-﻿//main.cpp
+﻿//AiCD_lab2_2026.cpp
 #include "UI.h"
 #include "Structure.h"
 #include <windows.h>
+#include <iostream>
 
 using namespace std;
 
+// Вход: нет.
+// Что делает: главная функция программы, управляет циклом вызова меню и переходами между операциями.
+// Выход: код завершения 0.
 int main() {
-    // Настройка кодировки для русского языка
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
 
     StudyStructure structure;
+    bool needClear = true;
 
     while (true) {
-        system("cls");
-        Greeting();
+        if (needClear) {
+            system("cls");
+            Greeting();
+        }
         printMenu();
 
-        string buffer;
-        // Используем safeInput с флагом onlyDigits=true для выбора пункта меню
-        if (!safeInput(buffer, "\nВыбор (введите номер пункта): ", true)) break; // ESC для выхода из программы
+        string raw = readLine("\nВыбор пункта: ");
+        string choice = trim(raw);
 
-        int state = stoi(buffer);
-        system("cls");
+        if (choice == "0") {
+            break;
+        }
 
-        switch (state) {
-        case 1:
+        // Защита от спама: пустой ввод (Enter) просто игнорируется
+        if (choice.empty()) {
+            needClear = false;
+            continue;
+        }
+
+        if (choice == "1") {
+            system("cls");
             handleAddSubject(structure);
-            break;
-        case 2:
+            needClear = true;
+        }
+        else if (choice == "2") {
+            system("cls");
             handleAddEvent(structure);
-            break;
-        case 3:
+            needClear = true;
+        }
+        else if (choice == "3") {
+            system("cls");
             handleDisplayStructure(structure);
-            break;
-        case 4:
+            needClear = true;
+        }
+        else if (choice == "4") {
+            system("cls");
             handleDeleteEvent(structure);
-            break;
-        case 5:
+            needClear = true;
+        }
+        else if (choice == "5") {
+            system("cls");
             handleDeleteSubject(structure);
-            break;
-        case 6:
+            needClear = true;
+        }
+        else if (choice == "6") {
+            system("cls");
             handleSaveToFile(structure);
-            break;
-        case 7:
+            needClear = true;
+        }
+        else if (choice == "7") {
+            system("cls");
             handleLoadFromFile(structure);
-            break;
-        case 0:
-            return 0;
-        default:
-            cout << "Неверный пункт меню\n";
-            pressAnyKey();
-            break;
+            needClear = true;
+        }
+        else if (choice == "8") {
+            system("cls");
+            handleSortSubjects(structure);
+            needClear = true;
+        }
+        else if (choice == "9") {
+            system("cls");
+            handleSearchByEvent(structure);
+            needClear = true;
+        }
+        else {
+            cout << "Неверный пункт меню. Введите число от 0 до 9.\n\n";
+            needClear = false;
         }
     }
     return 0;

@@ -1,48 +1,69 @@
-//Structure.cpp
+п»ї//Structure.cpp
 #include "Structure.h"
 #include <sstream>
 
-// Вспомогательная функция для перевода символов CP1251 в нижний регистр
-char tolowerCP1251(unsigned char c) {
-    if (c >= 'A' && c <= 'Z') return c + 32;
-    if (c >= 0xC0 && c <= 0xDF) return c + 32;
-    if (c == 0xA8) return 0xB8; // 'Ё' -> 'ё'
-    return c;
+// Р’С…РѕРґ: СЃРёРјРІРѕР».
+// Р§С‚Рѕ РґРµР»Р°РµС‚: РїРµСЂРµРІРѕРґРёС‚ СЃРёРјРІРѕР» CP1251 РІ РІРµСЂС…РЅРёР№ СЂРµРіРёСЃС‚СЂ.
+// Р’С‹С…РѕРґ: СЃРёРјРІРѕР» РІ РІРµСЂС…РЅРµРј СЂРµРіРёСЃС‚СЂРµ.
+char toUpperChar(unsigned char c) {
+    if (c >= 'a' && c <= 'z') return (char)(c - 32);
+    if (c >= 0xE0 && c <= 0xFF) return (char)(c - 32); // Р°-СЏ РІ CP1251
+    if (c == 0xB8) return (char)0xA8;
+    return (char)c;
 }
 
-// Вспомогательная функция для регистронезависимого сравнения строк
+// Р’С…РѕРґ: СЃРёРјРІРѕР».
+// Р§С‚Рѕ РґРµР»Р°РµС‚: РїРµСЂРµРІРѕРґРёС‚ СЃРёРјРІРѕР» CP1251 РІ РЅРёР¶РЅРёР№ СЂРµРіРёСЃС‚СЂ.
+// Р’С‹С…РѕРґ: СЃРёРјРІРѕР» РІ РЅРёР¶РЅРµРј СЂРµРіРёСЃС‚СЂРµ.
+char toLowerChar(unsigned char c) {
+    if (c >= 'A' && c <= 'Z') return (char)(c + 32);
+    if (c >= 0xC0 && c <= 0xDF) return (char)(c + 32); // Рђ-РЇ РІ CP1251
+    if (c == 0xA8) return (char)0xB8;
+    return (char)c;
+}
+
+// Р’С…РѕРґ: СЃС‚СЂРѕРєР°.
+// Р§С‚Рѕ РґРµР»Р°РµС‚: РїРµСЂРµРІРѕРґРёС‚ РІСЃРµ Р±СѓРєРІС‹ СЃС‚СЂРѕРєРё РІ РІРµСЂС…РЅРёР№ СЂРµРіРёСЃС‚СЂ.
+// Р’С‹С…РѕРґ: СЃС‚СЂРѕРєР° РІ РІРµСЂС…РЅРµРј СЂРµРіРёСЃС‚СЂРµ.
+string toUpperString(string s) {
+    for (size_t i = 0; i < s.length(); i++) {
+        s[i] = toUpperChar((unsigned char)s[i]);
+    }
+    return s;
+}
+
+// Р’С…РѕРґ: РґРІРµ СЃС‚СЂРѕРєРё.
+// Р§С‚Рѕ РґРµР»Р°РµС‚: РїРѕСЃРёРјРІРѕР»СЊРЅРѕ СЃСЂР°РІРЅРёРІР°РµС‚ СЃС‚СЂРѕРєРё Р±РµР· СѓС‡РµС‚Р° СЂРµРіРёСЃС‚СЂР°.
+// Р’С‹С…РѕРґ: true РµСЃР»Рё СЃС‚СЂРѕРєРё СЂР°РІРЅС‹, РёРЅР°С‡Рµ false.
 bool iequals(const string& a, const string& b) {
-    if (a.size() != b.size()) return false;
-    for (size_t i = 0; i < a.size(); ++i) {
-        if (tolowerCP1251(static_cast<unsigned char>(a[i])) != tolowerCP1251(static_cast<unsigned char>(b[i]))) {
+    if (a.length() != b.length()) return false;
+    for (size_t i = 0; i < a.length(); i++) {
+        if (toLowerChar((unsigned char)a[i]) != toLowerChar((unsigned char)b[i])) {
             return false;
         }
     }
     return true;
 }
 
-// Вход: нет.
-// Что делает: инициализирует пустую структуру.
-// Выход: указатель на начало списка равен nullptr.
+// Р’С…РѕРґ: РЅРµС‚.
+// Р§С‚Рѕ РґРµР»Р°РµС‚: РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ, РѕР±РЅСѓР»СЏРµС‚ СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РЅР°С‡Р°Р»Рѕ СЃС‚СЂСѓРєС‚СѓСЂС‹.
+// Р’С‹С…РѕРґ: РѕР±СЉРµРєС‚ РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅ.
 StudyStructure::StudyStructure() {
     subjectHead = nullptr;
 }
 
-// Вход: нет.
-// Что делает: вызывает очистку памяти при удалении объекта.
-// Выход: память освобождена.
+// Р’С…РѕРґ: РЅРµС‚.
+// Р§С‚Рѕ РґРµР»Р°РµС‚: РґРµСЃС‚СЂСѓРєС‚РѕСЂ, РІС‹Р·С‹РІР°РµС‚ РїРѕР»РЅСѓСЋ РѕС‡РёСЃС‚РєСѓ РїР°РјСЏС‚Рё.
+// Р’С‹С…РѕРґ: РїР°РјСЏС‚СЊ РѕСЃРІРѕР±РѕР¶РґРµРЅР°.
 StudyStructure::~StudyStructure() {
     clear();
 }
 
-// Вход: название предмета.
-// Что делает: создает узел предмета и добавляет его в конец списка, если такого предмета еще нет.
-// Выход: структура обновлена.
+// Р’С…РѕРґ: РЅР°Р·РІР°РЅРёРµ РїСЂРµРґРјРµС‚Р°.
+// Р§С‚Рѕ РґРµР»Р°РµС‚: РІС‹РґРµР»СЏРµС‚ РїР°РјСЏС‚СЊ РїРѕРґ СѓР·РµР» РїСЂРµРґРјРµС‚Р° Рё РІСЃС‚Р°РІР»СЏРµС‚ РµРіРѕ РІ РєРѕРЅРµС† СЃРїРёСЃРєР°.
+// Р’С‹С…РѕРґ: СЃС‚СЂСѓРєС‚СѓСЂР° РѕР±РЅРѕРІР»РµРЅР°.
 void StudyStructure::addSubject(string subject) {
-    // Если предмет уже существует, новый узел не создаем
-    if (hasSubject(subject)) {
-        return;
-    }
+    if (hasSubject(subject)) return;
 
     SubjectNode* newNode = new SubjectNode;
     newNode->subjectName = subject;
@@ -54,221 +75,211 @@ void StudyStructure::addSubject(string subject) {
         return;
     }
 
-    SubjectNode* current = subjectHead;
-    while (current->next != nullptr) {
-        current = current->next;
+    SubjectNode* cur = subjectHead;
+    while (cur->next != nullptr) {
+        cur = cur->next;
     }
-    current->next = newNode;
+    cur->next = newNode;
 }
 
-// Вход: название предмета, тип события.
-// Что делает: ищет предмет, затем добавляет уникальное событие в конец списка событий этого предмета.
-// Выход: структура обновлена.
+// Р’С…РѕРґ: РЅР°Р·РІР°РЅРёРµ РїСЂРµРґРјРµС‚Р°, С„РѕСЂРјР° РєРѕРЅС‚СЂРѕР»СЏ.
+// Р§С‚Рѕ РґРµР»Р°РµС‚: РїРµСЂРµРІРѕРґРёС‚ С„РѕСЂРјСѓ РєРѕРЅС‚СЂРѕР»СЏ РІ РІРµСЂС…РЅРёР№ СЂРµРіРёСЃС‚СЂ Рё РґРѕР±Р°РІР»СЏРµС‚ РІ РєРѕРЅРµС† РІРµС‚РІРµР№ РїСЂРµРґРјРµС‚Р°.
+// Р’С‹С…РѕРґ: СЃС‚СЂСѓРєС‚СѓСЂР° РѕР±РЅРѕРІР»РµРЅР°.
 void StudyStructure::addEvent(string subject, string event) {
-    SubjectNode* currentSubject = findSubject(subject);
-    if (currentSubject == nullptr) {
-        cout << "Предмет не найден\n";
-        return;
-    }
+    SubjectNode* curSubj = findSubject(subject);
+    if (curSubj == nullptr) return;
 
-    // Проверяем, существует ли уже такое событие у данного предмета
-    if (hasEvent(subject, event)) {
-        return;
-    }
+    event = toUpperString(event);
+
+    if (hasEvent(subject, event)) return;
 
     EventNode* newEvent = new EventNode;
     newEvent->eventName = event;
     newEvent->next = nullptr;
 
-    if (currentSubject->eventHead == nullptr) {
-        currentSubject->eventHead = newEvent;
+    if (curSubj->eventHead == nullptr) {
+        curSubj->eventHead = newEvent;
         return;
     }
 
-    EventNode* currentEvent = currentSubject->eventHead;
-    while (currentEvent->next != nullptr) {
-        currentEvent = currentEvent->next;
+    EventNode* curEvent = curSubj->eventHead;
+    while (curEvent->next != nullptr) {
+        curEvent = curEvent->next;
     }
-    currentEvent->next = newEvent;
+    curEvent->next = newEvent;
 }
 
-// Вход: название предмета.
-// Что делает: проверяет существование предмета в структуре (без учета регистра).
-// Выход: true, если найден, иначе false.
+// Р’С…РѕРґ: РЅР°Р·РІР°РЅРёРµ РїСЂРµРґРјРµС‚Р°.
+// Р§С‚Рѕ РґРµР»Р°РµС‚: РїСЂРѕРІРµСЂСЏРµС‚ СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёРµ РїСЂРµРґРјРµС‚Р° РІ СЃРїРёСЃРєРµ.
+// Р’С‹С…РѕРґ: true РµСЃР»Рё РЅР°Р№РґРµРЅ, РёРЅР°С‡Рµ false.
 bool StudyStructure::hasSubject(string subject) {
     return findSubject(subject) != nullptr;
 }
 
-// Вход: название предмета, название события.
-// Что делает: проверяет, привязано ли уже такое событие к указанному предмету.
-// Выход: true, если событие найдено, иначе false.
+// Р’С…РѕРґ: РЅР°Р·РІР°РЅРёРµ РїСЂРµРґРјРµС‚Р°, С„РѕСЂРјР° РєРѕРЅС‚СЂРѕР»СЏ.
+// Р§С‚Рѕ РґРµР»Р°РµС‚: РїСЂРѕРІРµСЂСЏРµС‚ РЅР°Р»РёС‡РёРµ С„РѕСЂРјС‹ РєРѕРЅС‚СЂРѕР»СЏ Сѓ РєРѕРЅРєСЂРµС‚РЅРѕРіРѕ РїСЂРµРґРјРµС‚Р°.
+// Р’С‹С…РѕРґ: true РµСЃР»Рё РЅР°Р№РґРµРЅР°, РёРЅР°С‡Рµ false.
 bool StudyStructure::hasEvent(string subject, string event) {
-    return findEvent(subject, event) != nullptr;
+    SubjectNode* curSubj = findSubject(subject);
+    if (curSubj == nullptr) return false;
+
+    EventNode* curEvent = curSubj->eventHead;
+    while (curEvent != nullptr) {
+        if (iequals(curEvent->eventName, event)) return true;
+        curEvent = curEvent->next;
+    }
+    return false;
 }
 
-// Вход: название предмета.
-// Что делает: выполняет регистронезависимый поиск предмета.
-// Выход: указатель на узел предмета, либо nullptr в случае отсутствия совпадений.
+// Р’С…РѕРґ: РЅР°Р·РІР°РЅРёРµ РїСЂРµРґРјРµС‚Р°.
+// Р§С‚Рѕ РґРµР»Р°РµС‚: РёС‰РµС‚ РїСЂРµРґРјРµС‚ РїРѕ РёРјРµРЅРё Р±РµР· СѓС‡РµС‚Р° СЂРµРіРёСЃС‚СЂР°.
+// Р’С‹С…РѕРґ: СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СѓР·РµР» РїСЂРµРґРјРµС‚Р° Р»РёР±Рѕ nullptr.
 SubjectNode* StudyStructure::findSubject(string subject) {
-    SubjectNode* current = subjectHead;
-    while (current != nullptr) {
-        if (iequals(current->subjectName, subject)) {
-            return current;
-        }
-        current = current->next;
+    SubjectNode* cur = subjectHead;
+    while (cur != nullptr) {
+        if (iequals(cur->subjectName, subject)) return cur;
+        cur = cur->next;
     }
     return nullptr;
 }
 
-// Вход: название предмета, название события.
-// Что делает: выполняет регистронезависимый поиск события у указанного предмета.
-// Выход: указатель на узел события, либо nullptr в случае отсутствия совпадений.
-EventNode* StudyStructure::findEvent(string subject, string event) {
-    SubjectNode* subj = findSubject(subject);
-    if (subj == nullptr) return nullptr;
-
-    EventNode* current = subj->eventHead;
-    while (current != nullptr) {
-        if (iequals(current->eventName, event)) {
-            return current;
-        }
-        current = current->next;
-    }
-    return nullptr;
+// Р’С…РѕРґ: РЅРµС‚.
+// Р§С‚Рѕ РґРµР»Р°РµС‚: РІРѕР·РІСЂР°С‰Р°РµС‚ РіРѕР»РѕРІСѓ СЃРїРёСЃРєР° РїСЂРµРґРјРµС‚РѕРІ.
+// Р’С‹С…РѕРґ: СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РїРµСЂРІС‹Р№ РїСЂРµРґРјРµС‚.
+SubjectNode* StudyStructure::getSubjectHead() const {
+    return subjectHead;
 }
 
-// Вход: нет.
-// Что делает: проходит по всем предметам и их событиям, выводя их в консоль.
-// Выход: нет (вывод в консоль).
+// Р’С…РѕРґ: РЅРµС‚.
+// Р§С‚Рѕ РґРµР»Р°РµС‚: РІС‹РІРѕРґРёС‚ СЃС‚СЂСѓРєС‚СѓСЂСѓ РЅР° РєРѕРЅСЃРѕР»СЊ (РїСЂРµРґРјРµС‚С‹ РІРЅРёР·, С„РѕСЂРјС‹ РєРѕРЅС‚СЂРѕР»СЏ РІРїСЂР°РІРѕ).
+// Р’С‹С…РѕРґ: РЅРµС‚.
 void StudyStructure::display() {
     if (subjectHead == nullptr) {
-        cout << "Структура пустая\n";
+        cout << "РЎС‚СЂСѓРєС‚СѓСЂР° РїСѓСЃС‚Р°.\n";
         return;
     }
 
-    SubjectNode* currentSubject = subjectHead;
-    int index = 1;
-    while (currentSubject != nullptr) {
-        cout << "[" << index << "] " << currentSubject->subjectName << endl;
-        cout << "     |\n";
+    SubjectNode* curSubj = subjectHead;
+    while (curSubj != nullptr) {
+        cout << "[" << curSubj->subjectName << "]";
 
-        EventNode* currentEvent = currentSubject->eventHead;
-        while (currentEvent != nullptr) {
-            cout << "     ---> " << currentEvent->eventName << endl;
-            currentEvent = currentEvent->next;
+        EventNode* curEvent = curSubj->eventHead;
+        while (curEvent != nullptr) {
+            cout << " ---> [" << curEvent->eventName << "]";
+            curEvent = curEvent->next;
         }
-        cout << endl;
-        currentSubject = currentSubject->next;
-        index++;
+        cout << "\n";
+
+        if (curSubj->next != nullptr) {
+            cout << "  |\n";
+        }
+
+        curSubj = curSubj->next;
     }
 }
 
-// Вход: название предмета, тип события.
-// Что делает: находит предмет, затем ищет событие в списке (без учета регистра) и удаляет его, перевязывая указатели.
-// Выход: структура обновлена.
+// Р’С…РѕРґ: РЅР°Р·РІР°РЅРёРµ РїСЂРµРґРјРµС‚Р°, С„РѕСЂРјР° РєРѕРЅС‚СЂРѕР»СЏ.
+// Р§С‚Рѕ РґРµР»Р°РµС‚: РїРµСЂРµРІСЏР·С‹РІР°РµС‚ СѓРєР°Р·Р°С‚РµР»Рё Рё СѓРґР°Р»СЏРµС‚ СѓР·РµР» С„РѕСЂРјС‹ РєРѕРЅС‚СЂРѕР»СЏ РёР· РІРµС‚РІРё РїСЂРµРґРјРµС‚Р°.
+// Р’С‹С…РѕРґ: СЃС‚СЂСѓРєС‚СѓСЂР° РѕР±РЅРѕРІР»РµРЅР°.
 void StudyStructure::deleteEvent(string subject, string event) {
-    SubjectNode* currentSubject = findSubject(subject);
-    if (currentSubject == nullptr) {
-        cout << "Предмет не найден\n";
-        return;
+    SubjectNode* curSubj = findSubject(subject);
+    if (curSubj == nullptr) return;
+
+    EventNode* cur = curSubj->eventHead;
+    EventNode* prev = nullptr;
+
+    while (cur != nullptr) {
+        if (iequals(cur->eventName, event)) break;
+        prev = cur;
+        cur = cur->next;
     }
 
-    EventNode* current = currentSubject->eventHead;
-    EventNode* previous = nullptr;
+    if (cur == nullptr) return;
 
-    while (current != nullptr) {
-        if (iequals(current->eventName, event)) break;
-        previous = current;
-        current = current->next;
-    }
-
-    if (current == nullptr) {
-        cout << "Событие не найдено\n";
-        return;
-    }
-
-    if (previous == nullptr) currentSubject->eventHead = current->next;
-    else previous->next = current->next;
-
-    delete current;
-    cout << "Событие \"" << event << "\" удалено\n";
-}
-
-// Вход: название предмета.
-// Что делает: удаляет предмет (без учета регистра), предварительно освобождая память всех его событий.
-// Выход: структура обновлена.
-void StudyStructure::deleteSubject(string subject) {
-    SubjectNode* current = findSubject(subject);
-    if (current == nullptr) {
-        cout << "Предмет не найден\n";
-        return;
-    }
-
-    // Если удаляемый узел является головой списка
-    if (subjectHead == current) {
-        subjectHead = current->next;
+    if (prev == nullptr) {
+        curSubj->eventHead = cur->next;
     }
     else {
-        SubjectNode* temp = subjectHead;
-        while (temp != nullptr && temp->next != current) {
-            temp = temp->next;
-        }
-        if (temp != nullptr) {
-            temp->next = current->next;
-        }
+        prev->next = cur->next;
     }
 
-    // Очистка событий предмета
-    EventNode* event = current->eventHead;
-    while (event != nullptr) {
-        EventNode* temp = event;
-        event = event->next;
+    string name = cur->eventName;
+    delete cur;
+    cout << "Р¤РѕСЂРјР° РєРѕРЅС‚СЂРѕР»СЏ \"" << name << "\" СѓРґР°Р»РµРЅР°.\n";
+}
+
+// Р’С…РѕРґ: РЅР°Р·РІР°РЅРёРµ РїСЂРµРґРјРµС‚Р°.
+// Р§С‚Рѕ РґРµР»Р°РµС‚: СѓРґР°Р»СЏРµС‚ РїСЂРµРґРјРµС‚ РёР· СЃС‚РІРѕР»Р° Рё РѕС‡РёС‰Р°РµС‚ РїР°РјСЏС‚СЊ РІСЃРµС… СЃРІСЏР·Р°РЅРЅС‹С… С„РѕСЂРј РєРѕРЅС‚СЂРѕР»СЏ.
+// Р’С‹С…РѕРґ: СЃС‚СЂСѓРєС‚СѓСЂР° РѕР±РЅРѕРІР»РµРЅР°.
+void StudyStructure::deleteSubject(string subject) {
+    SubjectNode* cur = subjectHead;
+    SubjectNode* prev = nullptr;
+
+    while (cur != nullptr) {
+        if (iequals(cur->subjectName, subject)) break;
+        prev = cur;
+        cur = cur->next;
+    }
+
+    if (cur == nullptr) return;
+
+    if (prev == nullptr) {
+        subjectHead = cur->next;
+    }
+    else {
+        prev->next = cur->next;
+    }
+
+    EventNode* ev = cur->eventHead;
+    while (ev != nullptr) {
+        EventNode* temp = ev;
+        ev = ev->next;
         delete temp;
     }
 
-    string deletedName = current->subjectName;
-    delete current;
-    cout << "Предмет \"" << deletedName << "\" удален\n";
+    string name = cur->subjectName;
+    delete cur;
+    cout << "РџСЂРµРґРјРµС‚ \"" << name << "\" СѓРґР°Р»РµРЅ РёР· СЃС‚СЂСѓРєС‚СѓСЂС‹.\n";
 }
 
-// Вход: имя файла.
-// Что делает: сохраняет структуру в текстовый вид.
-// Выход: нет (запись в файл).
+// Р’С…РѕРґ: РёРјСЏ С„Р°Р№Р»Р°.
+// Р§С‚Рѕ РґРµР»Р°РµС‚: СЃРѕС…СЂР°РЅСЏРµС‚ СЃС‚СЂСѓРєС‚СѓСЂСѓ РІ С‚РµРєСЃС‚РѕРІС‹Р№ С„Р°Р№Р» РїРѕСЃС‚СЂРѕС‡РЅРѕ.
+// Р’С‹С…РѕРґ: РЅРµС‚.
 void StudyStructure::saveToFile(string filename) {
-    ofstream file(filename);
+    ofstream file(filename.c_str());
     if (!file.is_open()) {
-        cout << "Ошибка открытия файла\n";
+        cout << "РћС€РёР±РєР°: РЅРµ СѓРґР°Р»РѕСЃСЊ РѕС‚РєСЂС‹С‚СЊ С„Р°Р№Р» РґР»СЏ Р·Р°РїРёСЃРё.\n";
         return;
     }
 
-    SubjectNode* currentSubject = subjectHead;
-    while (currentSubject != nullptr) {
-        file << currentSubject->subjectName;
-        EventNode* currentEvent = currentSubject->eventHead;
-        while (currentEvent != nullptr) {
-            file << " " << currentEvent->eventName;
-            currentEvent = currentEvent->next;
+    SubjectNode* curSubj = subjectHead;
+    while (curSubj != nullptr) {
+        file << curSubj->subjectName;
+        EventNode* curEvent = curSubj->eventHead;
+        while (curEvent != nullptr) {
+            file << " " << curEvent->eventName;
+            curEvent = curEvent->next;
         }
-        file << endl;
-        currentSubject = currentSubject->next;
+        file << "\n";
+        curSubj = curSubj->next;
     }
+
     file.close();
-    cout << "Сохранение завершено\n";
+    cout << "Р”Р°РЅРЅС‹Рµ СЃРѕС…СЂР°РЅРµРЅС‹ РІ С„Р°Р№Р»: " << filename << "\n";
 }
 
-// Вход: имя файла.
-// Что делает: читает файл построчно, разбирает слова и восстанавливает структуру в памяти. 
-//             Игнорирует пустые строки и не создает пустые элементы.
-// Выход: структура наполнена данными.
+// Р’С…РѕРґ: РёРјСЏ С„Р°Р№Р»Р°.
+// Р§С‚Рѕ РґРµР»Р°РµС‚: РїР°СЂСЃРёС‚ СЃС‚СЂРѕРєРё РёР· С„Р°Р№Р»Р° Рё РІРѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РґРёРЅР°РјРёС‡РµСЃРєСѓСЋ СЃС‚СЂСѓРєС‚СѓСЂСѓ РІ РїР°РјСЏС‚Рё.
+// Р’С‹С…РѕРґ: СЃС‚СЂСѓРєС‚СѓСЂР° Р·Р°РїРѕР»РЅРµРЅР°.
 void StudyStructure::loadFromFile(string filename) {
-    ifstream file(filename);
+    ifstream file(filename.c_str());
     if (!file.is_open()) {
-        cout << "Ошибка открытия файла\n";
+        cout << "РћС€РёР±РєР°: С„Р°Р№Р» \"" << filename << "\" РЅРµ РЅР°Р№РґРµРЅ.\n";
         return;
     }
 
     string line;
-    bool loadedAny = false;
+    int count = 0;
     while (getline(file, line)) {
         if (line.empty()) continue;
 
@@ -277,36 +288,102 @@ void StudyStructure::loadFromFile(string filename) {
         if (!(ss >> subject)) continue;
 
         addSubject(subject);
-        loadedAny = true;
-
         string event;
         while (ss >> event) {
             addEvent(subject, event);
         }
+        count++;
     }
+
     file.close();
-    if (loadedAny) {
-        cout << "Загрузка завершена\n";
+    if (count > 0) {
+        cout << "РЈСЃРїРµС€РЅРѕ Р·Р°РіСЂСѓР¶РµРЅРѕ РїСЂРµРґРјРµС‚РѕРІ: " << count << "\n";
     }
     else {
-        cout << "Файл пуст или не содержит корректных данных\n";
+        cout << "Р¤Р°Р№Р» РїСѓСЃС‚ РёР»Рё СЃРѕРґРµСЂР¶РёС‚ РЅРµРєРѕСЂСЂРµРєС‚РЅС‹Рµ РґР°РЅРЅС‹Рµ.\n";
     }
 }
 
-// Вход: нет.
-// Что делает: проходит по всем уровням структуры и вызывает delete для каждого узла.
-// Выход: память очищена.
+// Р’С…РѕРґ: РЅРµС‚.
+// Р§С‚Рѕ РґРµР»Р°РµС‚: РѕР±С…РѕРґРёС‚ РІСЃРµ СѓСЂРѕРІРЅРё СЃС‚СЂСѓРєС‚СѓСЂС‹ Рё РІС‹Р·С‹РІР°РµС‚ delete РґР»СЏ РєР°Р¶РґРѕРіРѕ СѓР·Р»Р°.
+// Р’С‹С…РѕРґ: РїР°РјСЏС‚СЊ РѕСЃРІРѕР±РѕР¶РґРµРЅР°.
 void StudyStructure::clear() {
     while (subjectHead != nullptr) {
-        SubjectNode* tempSubject = subjectHead;
+        SubjectNode* tempSubj = subjectHead;
         subjectHead = subjectHead->next;
 
-        EventNode* currentEvent = tempSubject->eventHead;
-        while (currentEvent != nullptr) {
-            EventNode* tempEvent = currentEvent;
-            currentEvent = currentEvent->next;
+        EventNode* curEvent = tempSubj->eventHead;
+        while (curEvent != nullptr) {
+            EventNode* tempEvent = curEvent;
+            curEvent = curEvent->next;
             delete tempEvent;
         }
-        delete tempSubject;
+        delete tempSubj;
     }
+}
+
+// Р’С…РѕРґ: С„Р»Р°Рі РЅР°РїСЂР°РІР»РµРЅРёСЏ СЃРѕСЂС‚РёСЂРѕРІРєРё (true - РїРѕ РІРѕР·СЂР°СЃС‚Р°РЅРёСЋ, false - РїРѕ СѓР±С‹РІР°РЅРёСЋ).
+// Р§С‚Рѕ РґРµР»Р°РµС‚: СЃРѕСЂС‚РёСЂСѓРµС‚ РїСЂРµРґРјРµС‚С‹ РјРµС‚РѕРґРѕРј РІС‹Р±РѕСЂР° Р»РµРєСЃРёРєРѕРіСЂР°С„РёС‡РµСЃРєРё СЃ РїРµСЂРµРјРµС‰РµРЅРёРµРј РёС… С„РѕСЂРј РєРѕРЅС‚СЂРѕР»СЏ.
+// Р’С‹С…РѕРґ: СЃС‚СЂСѓРєС‚СѓСЂР° СѓРїРѕСЂСЏРґРѕС‡РµРЅР°.
+void StudyStructure::sortSubjects(bool ascending) {
+    if (subjectHead == nullptr || subjectHead->next == nullptr) {
+        return; // 0 РёР»Рё 1 СЌР»РµРјРµРЅС‚ вЂ” СЃРѕСЂС‚РёСЂРѕРІР°С‚СЊ РЅРµС‡РµРіРѕ
+    }
+
+    SubjectNode* i = subjectHead;
+    while (i != nullptr) {
+        SubjectNode* target = i;
+        SubjectNode* j = i->next;
+
+        while (j != nullptr) {
+            // Р›РµРєСЃРёРєРѕРіСЂР°С„РёС‡РµСЃРєРѕРµ (СЂРµРіРёСЃС‚СЂРѕР·Р°РІРёСЃРёРјРѕРµ) СЃСЂР°РІРЅРµРЅРёРµ РЅР°Р·РІР°РЅРёР№ РїСЂРµРґРјРµС‚РѕРІ
+            if (ascending) {
+                if (j->subjectName < target->subjectName) {
+                    target = j;
+                }
+            }
+            else {
+                if (j->subjectName > target->subjectName) {
+                    target = j;
+                }
+            }
+            j = j->next;
+        }
+
+        if (target != i) {
+            // РћР±РјРµРЅ РЅР°Р·РІР°РЅРёСЏ РїСЂРµРґРјРµС‚Р°
+            string tempName = i->subjectName;
+            i->subjectName = target->subjectName;
+            target->subjectName = tempName;
+
+            // РћР±РјРµРЅ СѓРєР°Р·Р°С‚РµР»СЏ РЅР° С„РѕСЂРјС‹ РєРѕРЅС‚СЂРѕР»СЏ (РІРµС‚РІРё РїРµСЂРµРјРµС‰Р°СЋС‚СЃСЏ РІРјРµСЃС‚Рµ СЃРѕ СЃРІРѕРёРј РїСЂРµРґРјРµС‚РѕРј)
+            EventNode* tempHead = i->eventHead;
+            i->eventHead = target->eventHead;
+            target->eventHead = tempHead;
+        }
+
+        i = i->next;
+    }
+}
+
+// Р’С…РѕРґ: РЅР°Р·РІР°РЅРёРµ С„РѕСЂРјС‹ РєРѕРЅС‚СЂРѕР»СЏ.
+// Р§С‚Рѕ РґРµР»Р°РµС‚: РїСЂРёРІРѕРґРёС‚ Р·Р°РїСЂРѕСЃ Рє РІРµСЂС…РЅРµРјСѓ СЂРµРіРёСЃС‚СЂСѓ Рё РІС‹РІРѕРґРёС‚ РІСЃРµ РїСЂРµРґРјРµС‚С‹, СЃРѕРґРµСЂР¶Р°С‰РёРµ РґР°РЅРЅСѓСЋ С„РѕСЂРјСѓ РєРѕРЅС‚СЂРѕР»СЏ.
+// Р’С‹С…РѕРґ: РєРѕР»РёС‡РµСЃС‚РІРѕ РЅР°Р№РґРµРЅРЅС‹С… РїСЂРµРґРјРµС‚РѕРІ.
+int StudyStructure::findSubjectsByEvent(string event) {
+    event = toUpperString(event);
+    int foundCount = 0;
+
+    SubjectNode* cur = subjectHead;
+    while (cur != nullptr) {
+        if (hasEvent(cur->subjectName, event)) {
+            if (foundCount == 0) {
+                cout << "\nРџРѕ С„РѕСЂРјРµ РєРѕРЅС‚СЂРѕР»СЏ \"" << event << "\" РЅР°Р№РґРµРЅС‹ РїСЂРµРґРјРµС‚С‹:\n";
+            }
+            cout << "  вЂў " << cur->subjectName << "\n";
+            foundCount++;
+        }
+        cur = cur->next;
+    }
+
+    return foundCount;
 }

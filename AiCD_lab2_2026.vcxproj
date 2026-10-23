@@ -128,7 +128,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AiCD_lab2_2026.cpp" />
-    <ClCompile Include="FileManager.cpp" />
     <ClCompile Include="Structure.cpp" />
     <ClCompile Include="UI.cpp" />
   </ItemGroup>
@@ -136,7 +135,6 @@
     <Text Include="test.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="FileManager.h" />
     <ClInclude Include="Structure.h" />
     <ClInclude Include="UI.h" />
   </ItemGroup>
